@@ -1,0 +1,45 @@
+@host = http://localhost:5192
+
+### Search active products (code or description)
+GET {{host}}/api/products?search=leveluk&page=1&pageSize=20
+Accept: application/json
+
+### Get one product
+GET {{host}}/api/products/1
+Accept: application/json
+
+### Create a product with two price levels
+POST {{host}}/api/products
+Content-Type: application/json
+
+{
+  "code": "7501234567890",
+  "description": "Filtro de agua Leveluk",
+  "unit": "PZA",
+  "cost": 850.00,
+  "currency": "MXN",
+  "requiresSerial": false,
+  "prices": [
+    { "level": 1, "amount": 1290.00 },
+    { "level": 2, "amount": 1190.00 }
+  ]
+}
+
+### Update a product (replaces the whole price list)
+PUT {{host}}/api/products/1
+Content-Type: application/json
+
+{
+  "code": "7501234567890",
+  "description": "Filtro de agua Leveluk (repuesto)",
+  "unit": "PZA",
+  "cost": 900.00,
+  "currency": "MXN",
+  "requiresSerial": false,
+  "prices": [
+    { "level": 1, "amount": 1350.00 }
+  ]
+}
+
+### Deactivate a product
+DELETE {{host}}/api/products/1

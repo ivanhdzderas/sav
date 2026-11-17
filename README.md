@@ -1,0 +1,74 @@
+# SAV — Sales Administration System
+
+SAV is a sales, inventory and invoicing system for small and medium businesses (SMBs) in Mexico.
+
+It started in 2016 as my bachelor's thesis in Computer Systems: a desktop application built after surveying 177 SMBs in Puerto Vallarta, then tested in three real businesses. This repository is its **2026 rebuild**: the same business domain, redesigned with a modern stack and engineering practices.
+
+> 🚧 Work in progress. The roadmap below shows what is done and what comes next.
+
+## 2016 → 2026
+
+| | Original (2016) | Rebuild (2026) |
+|---|---|---|
+| Language | VB.NET | C# on .NET 10 (LTS) |
+| UI | Windows Forms (MDI desktop app) | React + TypeScript web app *(planned)* |
+| Business logic | Inside the forms | Layered architecture: Domain → Application → Infrastructure → API |
+| Data access | Hand-written SQL, SQL Server 2012 | EF Core 10 with migrations, SQL Server |
+| Data model | Repeated columns (`PRECIO1..5`, `UTILIDAD1..5`) | Normalized tables; profit is computed, not stored |
+| Errors | Message boxes | RFC 7807 problem responses |
+| Distribution | `.exe` installer per machine | Docker + cloud deployment *(planned)* |
+| Quality | Manual testing | Automated tests + CI on GitHub Actions *(planned)* |
+| Invoicing | CFDI 3.2 via a PAC's SOAP API | CFDI 4.0 *(planned)* |
+
+## Architecture
+
+```
+src/
+  Sav.Domain           Entities and business rules (no dependencies)
+  Sav.Application      Use cases, DTOs and persistence abstraction
+  Sav.Infrastructure   EF Core DbContext, mappings and migrations
+  Sav.Api              ASP.NET Core controllers, error handling, OpenAPI
+```
+
+Dependencies point inward: `Api → Application ← Infrastructure`, and everything depends on `Domain`.
+
+## Roadmap
+
+**v1: core operations**
+- [x] Products: CRUD, up to 5 price levels, profit per level, soft delete
+- [ ] Brands and product groups
+- [ ] Customers, suppliers and branches
+- [ ] Users, roles and JWT authentication
+- [ ] Inventory movements (entries, exits, adjustments) and stock card per product
+- [ ] Purchases, including import from CFDI XML files
+- [ ] Point of sale: ticket and payment
+- [ ] Quotes → orders
+- [ ] Daily sales report
+
+**Engineering**
+- [ ] Docker and docker-compose (API + SQL Server)
+- [ ] Unit and integration tests (xUnit)
+- [ ] CI with GitHub Actions
+- [ ] React + TypeScript front end
+- [ ] Deployment to Azure
+
+**v2 and beyond:** transfers between branches, serial numbers, PDF account statements, AI-assisted sales reports, CFDI 4.0 invoicing.
+
+## Run it locally
+
+Requirements: .NET 10 SDK and SQL Server (Express or Developer edition).
+
+```bash
+dotnet tool restore
+dotnet tool run dotnet-ef database update --project src/Sav.Infrastructure --startup-project src/Sav.Api
+dotnet run --project src/Sav.Api --launch-profile http
+```
+
+Then open <http://localhost:5192/scalar> for the interactive API docs, or use `src/Sav.Api/Sav.Api.http` from Visual Studio or VS Code.
+
+The development connection string (`src/Sav.Api/appsettings.Development.json`) points to `.\SQLEXPRESS` with Windows authentication. Change it if your SQL Server instance is different.
+
+## Notes
+
+- Code and documentation are in English. The user interface will be in Spanish, since the target users are Mexican SMBs.
+- © 2016–2026 Iván Hernández. All rights reserved. The source is public for portfolio and review purposes.
