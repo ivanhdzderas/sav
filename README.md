@@ -77,7 +77,15 @@ The image is a multi-stage build: compiled with the .NET SDK, run on the smaller
 
 ## Run it locally (without Docker)
 
-Requirements: .NET 10 SDK and SQL Server (Express or Developer edition).
+Requirements: .NET 10 SDK and a SQL Server instance. The easiest one is the container from the Docker setup (`docker compose up -d sqlserver`, port 14330).
+
+The connection string is not in the repository. Store it with user secrets (kept outside the repo, under `%APPDATA%\Microsoft\UserSecrets`):
+
+```bash
+dotnet user-secrets set "ConnectionStrings:Sav" "Server=localhost,14330;Database=Sav;User Id=sa;Password=<your password>;TrustServerCertificate=True" --project src/Sav.Api
+```
+
+Then:
 
 ```bash
 dotnet tool restore
@@ -87,7 +95,7 @@ dotnet run --project src/Sav.Api --launch-profile http
 
 Then open <http://localhost:5192/scalar> for the interactive API docs, or use `src/Sav.Api/Sav.Api.http` from Visual Studio or VS Code.
 
-The development connection string (`src/Sav.Api/appsettings.Development.json`) points to `.\SQLEXPRESS` with Windows authentication. Change it if your SQL Server instance is different.
+Inside Docker the same setting comes from the `ConnectionStrings__Sav` environment variable (see `compose.yaml`).
 
 ## Notes
 
