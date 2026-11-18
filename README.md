@@ -46,7 +46,7 @@ Dependencies point inward: `Api → Application ← Infrastructure`, and everyth
 - [ ] Daily sales report
 
 **Engineering**
-- [ ] Docker and docker-compose (API + SQL Server)
+- [x] Docker and Docker Compose (API + SQL Server + migrations)
 - [ ] Unit and integration tests (xUnit)
 - [ ] CI with GitHub Actions
 - [ ] React + TypeScript front end
@@ -54,7 +54,28 @@ Dependencies point inward: `Api → Application ← Infrastructure`, and everyth
 
 **v2 and beyond:** transfers between branches, serial numbers, PDF account statements, AI-assisted sales reports, CFDI 4.0 invoicing.
 
-## Run it locally
+## Run it with Docker
+
+Requirements: Docker Desktop (or Docker Engine with Compose v2).
+
+```bash
+cp .env.example .env   # then set your own SA password
+docker compose up -d --build
+```
+
+This starts three services:
+
+| Service | What it does |
+|---|---|
+| `sqlserver` | SQL Server 2025 (Developer), data kept in the `sqldata` volume, exposed on host port `14330` |
+| `migrate` | Applies EF Core migrations with a [migration bundle](https://learn.microsoft.com/ef/core/managing-schemas/migrations/applying#bundles), then exits |
+| `api` | Starts only after migrations succeed; listens on <http://localhost:8080> |
+
+Open <http://localhost:8080/scalar> for the API docs and <http://localhost:8080/health> for the health check. Stop with `docker compose down` (add `-v` to also delete the database).
+
+The image is a multi-stage build: compiled with the .NET SDK, run on the smaller ASP.NET runtime image as a non-root user.
+
+## Run it locally (without Docker)
 
 Requirements: .NET 10 SDK and SQL Server (Express or Developer edition).
 

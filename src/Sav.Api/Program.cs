@@ -9,6 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("Sav"));
@@ -26,6 +27,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
 

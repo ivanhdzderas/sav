@@ -1,0 +1,49 @@
+name: sav
+
+x-db-connection: &db-connection
+  ConnectionStrings__Sav: Server=sqlserver;Database=Sav;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env}
+    ports:
+      - "14330:1433" # 14330 on the host to avoid clashing with a local SQL Server
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -b -o /dev/null -Q "IF EXISTS (SELECT 1 FROM sys.databases WHERE state_desc <> 'ONLINE') RAISERROR('databases still recovering', 16, 1)"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  migrate:
+    build:
+      context: .
+      target: migrations
+    environment:
+      <<: *db-connection # the bundle boots the API host, which reads this
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      target: runtime
+    environment:
+      <<: *db-connection
+      ASPNETCORE_ENVIRONMENT: Development # enables /scalar docs
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  sqldata:
