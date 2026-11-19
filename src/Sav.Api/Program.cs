@@ -2,6 +2,7 @@ using Sav.Api.Errors;
 using Sav.Application;
 using Sav.Infrastructure;
 using Scalar.AspNetCore;
+using Sav.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks().AddDbContextCheck<SavDbContext>();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("Sav"));
