@@ -16,7 +16,8 @@ RUN dotnet publish src/Sav.Api/Sav.Api.csproj -c Release -o /app --no-restore
 
 # 3a) Genera el bundle, reusando todo lo que ya compiló "build"
 FROM build AS migrations-build
-RUN dotnet tool run dotnet-ef migrations bundle \
+RUN ConnectionStrings__Sav="Server_design-time;Database=Sav" \
+      dotnet tool run dotnet-ef migrations bundle \
       --project src/Sav.Infrastructure \
       --startup-project src/Sav.Api \
       --configuration Release \
