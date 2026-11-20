@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sav.Application.Common;
+using Sav.Domain.Brands;
 using Sav.Domain.Products;
 
 namespace Sav.Infrastructure.Persistence;
@@ -8,6 +9,8 @@ namespace Sav.Infrastructure.Persistence;
 public sealed class SavDbContext(DbContextOptions<SavDbContext> options) : DbContext(options), IApplicationDbContext
 {
     public DbSet<Product> Products => Set<Product>();
+
+    public DbSet<Brand> Brands => Set<Brand>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SavDbContext).Assembly);

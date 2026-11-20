@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Sav.Domain.Brands;
 using Sav.Domain.Products;
 
 namespace Sav.Application.Common;
@@ -7,6 +8,8 @@ namespace Sav.Application.Common;
 public interface IApplicationDbContext
 {
     DbSet<Product> Products { get; }
+
+    DbSet<Brand> Brands { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
