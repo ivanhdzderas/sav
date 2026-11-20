@@ -16,7 +16,7 @@ RUN dotnet publish src/Sav.Api/Sav.Api.csproj -c Release -o /app --no-restore
 
 # 3a) Genera el bundle, reusando todo lo que ya compiló "build"
 FROM build AS migrations-build
-RUN ConnectionStrings__Sav="Server_design-time;Database=Sav" \
+RUN ConnectionStrings__Sav="Server=design-time;Database=Sav" \
       dotnet tool run dotnet-ef migrations bundle \
       --project src/Sav.Infrastructure \
       --startup-project src/Sav.Api \
@@ -37,6 +37,9 @@ ENTRYPOINT ["./efbundle"]
 # Etapa 2: ejecutar
 FROM mcr.microsoft.com/dotnet/aspnet:10.0  AS runtime
 WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app .
 USER $APP_UID
 EXPOSE 8080
